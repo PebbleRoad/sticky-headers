@@ -5,11 +5,12 @@
 
     var pluginName = 'stickyHeaders',
         defaults = {
-            headlineSelector:      '.sticky-header',
+            headlineSelector:      'h2, h3, h4',
             hiddenClass:           'sticky-header-hidden',
-            stickyElement:         'h2',
+            stickyElement:         'div',
             stickyClass:           'sticky-helper',
             stickyChildren:        '<span></span>',
+            iconElement:           '<em class="icon" />',
             textContainerSelector: 'span',
             endOfScrollPos:        null
         };
@@ -63,16 +64,21 @@
         // create sticky container and bind events
         init: function() {
             this.$sticky     = $('<' + this.options.stickyElement + ' />')
-                                   .wrapInner(this.options.stickyChildren)
+                                   .wrapInner(this.options.stickyChildren)                                   
                                    .addClass(this.options.stickyClass + ' ' + this.options.hiddenClass)
                                    .prependTo(this.$el);
+            
             this.$stickyText = this.$sticky.find(this.options.textContainerSelector);
+
+            $(this.options.iconElement).appendTo(this.$sticky);
+
             this.buildHeaderCache();
 
             var _this = this;
             $(window).on('load stickyHeadersRebuildCache', function() {
                 _this.buildHeaderCache();
             }).on('scroll touchmove', function() {
+                _this.$el.trigger('sticky-scroll-start');
                 _this.updateSticky();
             });
         },
@@ -126,6 +132,7 @@
                     }
                 }
             }
+
         },
 
 
@@ -159,7 +166,15 @@
         // when positioning is done: update sticky container text, header
         // classes and status
         updateTextAndClassesAndStatus: function(currentIndex, isFixed) {
-            this.$stickyText.text(this.headers[currentIndex].text);
+                        
+            var $header = this.headers[currentIndex].$el.clone().removeClass(),
+                _activeItem = $header.attr("id");
+
+            this.$stickyText.html($header);
+
+            /** Trigger Update **/
+
+            this.$el.trigger('sticky-change', [_activeItem, isFixed]);
 
             this.$headers
                 .not(this.headers[currentIndex].$el)
