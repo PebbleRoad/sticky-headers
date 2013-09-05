@@ -68,6 +68,7 @@
                                    .addClass(this.options.stickyClass + ' ' + this.options.hiddenClass)
                                    .prependTo(this.$el);
             
+            
             this.$stickyText = this.$sticky.find(this.options.textContainerSelector);
 
             $(this.options.iconElement).appendTo(this.$sticky);
@@ -81,6 +82,15 @@
                 _this.$el.trigger('sticky-scroll-start');
                 _this.updateSticky();
             });
+
+            // Set the Width of the Sticky Container
+            
+            _this.$sticky.width(_this.$el.width());
+
+            $(window).resize(function(){
+                _this.$sticky.width(_this.$el.width());
+            });
+
         },
 
 
